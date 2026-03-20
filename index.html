@@ -1,41 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Your Key</title>
+  <title>Get Your Key</title>
+  <style>
+    body { background: #08080a; color: #eee; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .card { background: #0e0e12; border: 1px solid #1c1c24; border-radius: 12px; padding: 40px; text-align: center; max-width: 400px; }
+    .key { background: #14141a; border: 1px solid #6e82ff; border-radius: 8px; padding: 12px 20px; font-size: 14px; letter-spacing: 2px; margin: 20px 0; word-break: break-all; }
+    button { background: #6e82ff; color: white; border: none; border-radius: 8px; padding: 10px 24px; cursor: pointer; font-size: 13px; }
+    .error { color: #d23737; }
+    .note { color: #646472; font-size: 11px; margin-top: 10px; }
+  </style>
 </head>
 <body>
-  <h2>Your 24h Key</h2>
-  <p id="key">Generating...</p>
+  <div class="card">
+    <h2>Your 24h Key</h2>
+    <div id="status">Verifying your completion...</div>
+    <div id="key-container" style="display:none">
+      <div class="key" id="key-display"></div>
+      <button onclick="copyKey()">Copy Key</button>
+      <p class="note">This key expires in 24 hours. One key per device.</p>
+    </div>
+  </div>
 
   <script>
-    const SUPABASE_URL = "https://cazrwdipecalsfquoxqj.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_UbqD4Xl6_ykrLWQcp4AAMA_8N023AtU";
+    const WORKER_URL = "https://your-worker.your-name.workers.dev"; // paste your worker URL
 
-    function randomKey() {
-      return [...crypto.getRandomValues(new Uint8Array(16))]
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("")
-        .toUpperCase();
+    async function getKey() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+
+      if (!token) {
+        document.getElementById("status").innerHTML = '<span class="error">⚠ You must complete the checkpoint first!</span>';
+        return;
+      }
+
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          document.getElementById("status").innerHTML = `<span class="error">⚠ ${data.error}</span>`;
+          return;
+        }
+
+        document.getElementById("status").style.display = "none";
+        document.getElementById("key-display").innerText = data.key;
+        document.getElementById("key-container").style.display = "block";
+
+        if (data.existing) {
+          document.querySelector(".note").innerText = "You already have a valid key — here it is again!";
+        }
+
+      } catch (e) {
+        document.getElementById("status").innerHTML = '<span class="error">⚠ Something went wrong. Try again.</span>';
+      }
     }
 
-    async function generateKey() {
-      const key = randomKey();
-      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-
-      await fetch(`${SUPABASE_URL}/rest/v1/keys`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_KEY,
-          "Authorization": `Bearer ${SUPABASE_KEY}`
-        },
-        body: JSON.stringify({ key, expires_at: expires })
-      });
-
-      document.getElementById("key").innerText = key;
+    function copyKey() {
+      navigator.clipboard.writeText(document.getElementById("key-display").innerText);
     }
 
-    generateKey();
+    getKey();
   </script>
 </body>
 </html>
