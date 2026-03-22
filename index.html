@@ -159,21 +159,21 @@
     }
 
     .discord-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--discord);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+  width: 48px;
+  height: 48px;
+  background: var(--discord);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
-    .discord-icon svg {
-      width: 26px;
-      height: 26px;
-      fill: white;
-    }
+.discord-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
 
     .discord-text { flex: 1; text-align: left; }
 
@@ -209,17 +209,16 @@
 
     .discord-card:hover .discord-arrow { transform: translateX(4px); }
 
-    /* pulse ring on discord icon */
     .discord-icon::after {
-      content: '';
-      position: absolute;
-      width: 48px;
-      height: 48px;
-      border: 2px solid var(--discord);
-      border-radius: 14px;
-      opacity: 0;
-      animation: ring 2.5s ease-out infinite;
-    }
+  content: '';
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--discord);
+  border-radius: 50%;          /* ← circle here too */
+  opacity: 0;
+  animation: ring 2.5s ease-out infinite;
+}
 
     @keyframes ring {
       0% { opacity: 0.6; transform: scale(1); }
