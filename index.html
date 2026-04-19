@@ -240,7 +240,7 @@
     <div class="card">
       <h2>Your 24h Key</h2>
       <p class="subtitle">Complete the checkpoint to receive<br>your free key — valid for 24 hours.</p>
-      <div id="status">Verifying your completion...</div>
+      <div id="status">Generating your key...</div>
       <div class="key-box" id="key-box">
         <div class="key-text" id="key-display"></div>
       </div>
@@ -268,29 +268,16 @@
 
   </div>
 
-<script>
+  <script>
     const WORKER_URL = "https://keyverify.ivyckdemal.workers.dev";
 
-    // If we already got a key this session, show it immediately
-    const savedKey = sessionStorage.getItem("lastKey");
-    if (savedKey) {
-      document.getElementById("status").style.display = "none";
-      document.getElementById("key-display").innerText = savedKey;
-      document.getElementById("key-box").style.display = "block";
-      document.getElementById("copy-wrap").style.display = "block";
-    } else {
-      getKey();
-    }
-
     async function getKey() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-
-      // Immediately strip token from URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-
-      if (!token) {
-        document.getElementById("status").innerHTML = '<span class="error">⚠ You must complete the checkpoint first!</span>';
+      const savedKey = sessionStorage.getItem("lastKey");
+      if (savedKey) {
+        document.getElementById("status").style.display = "none";
+        document.getElementById("key-display").innerText = savedKey;
+        document.getElementById("key-box").style.display = "block";
+        document.getElementById("copy-wrap").style.display = "block";
         return;
       }
 
@@ -298,7 +285,7 @@
         const res = await fetch(WORKER_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({})
         });
 
         const data = await res.json();
@@ -328,6 +315,8 @@
       document.querySelector(".copy-btn").innerText = "✓ COPIED!";
       setTimeout(() => document.querySelector(".copy-btn").innerText = "COPY KEY", 2000);
     }
-</script>
+
+    getKey();
+  </script>
 </body>
 </html>
