@@ -1,290 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Get Your Key</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;700;800&display=swap');
-
-    :root {
-      --bg: #060608;
-      --card: #0c0c10;
-      --border: #1a1a24;
-      --accent: #6e82ff;
-      --green: #2dd4a0;
-      --red: #f43f5e;
-      --text: #e2e2f0;
-      --muted: #52526a;
-      --discord: #5865F2;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(110,130,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(110,130,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
-
-    .wrapper {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 440px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 40px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), #a78bfa);
-    }
-
-    h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 6px;
-      letter-spacing: -0.5px;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 11px;
-      margin-bottom: 28px;
-      line-height: 1.6;
-    }
-
-    #status { color: var(--muted); font-size: 12px; }
-
-    .key-box {
-      background: #0a0a0e;
-      border: 1px solid var(--accent);
-      border-radius: 10px;
-      padding: 16px 20px;
-      margin: 20px 0 16px;
-      display: none;
-    }
-
-    .key-text {
-      font-size: 13px;
-      letter-spacing: 2px;
-      color: var(--accent);
-      word-break: break-all;
-      line-height: 1.6;
-    }
-
-    .copy-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 24px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-      letter-spacing: 1px;
-    }
-
-    .copy-btn:hover { opacity: 0.85; }
-
-    .note {
-      color: var(--muted);
-      font-size: 10px;
-      margin-top: 12px;
-      letter-spacing: 0.5px;
-    }
-
-    .error { color: var(--red); font-size: 12px; }
-
-    .discord-card {
-      background: #0e0f1a;
-      border: 1px solid #2a2d4a;
-      border-radius: 16px;
-      padding: 24px 28px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      position: relative;
-      overflow: hidden;
-      text-decoration: none;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-
-    .discord-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--discord);
-    }
-
-    .discord-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 0% 50%, rgba(88,101,242,0.12), transparent 70%);
-      pointer-events: none;
-    }
-
-    .discord-icon-wrap {
-      position: relative;
-      width: 48px;
-      height: 48px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .discord-icon-wrap::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border: 2px solid var(--discord);
-      border-radius: 14px;
-      opacity: 0;
-      animation: ring 2.5s ease-out infinite;
-    }
-
-    @keyframes ring {
-      0%   { opacity: 0.6; transform: scale(1); }
-      100% { opacity: 0;   transform: scale(1.6); }
-    }
-
-    .discord-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--discord);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .discord-icon svg {
-      width: 30px;
-      height: 22px;
-      fill: white;
-      display: block;
-    }
-
-    .discord-text { flex: 1; text-align: left; }
-
-    .discord-label {
-      font-size: 10px;
-      color: #5865F2;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-
-    .discord-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.3px;
-    }
-
-    .discord-sub {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    .discord-arrow {
-      color: var(--discord);
-      font-size: 18px;
-      flex-shrink: 0;
-      transition: transform 0.2s;
-    }
-
-    .discord-card:hover .discord-arrow { transform: translateX(4px); }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-
-    <div class="card">
-      <h2>Your 24h Key</h2>
-      <p class="subtitle">Complete the checkpoint to receive<br>your free key — valid for 24 hours.</p>
-      <div id="status">Verifying your completion...</div>
-      <div class="key-box" id="key-box">
-        <div class="key-text" id="key-display"></div>
-      </div>
-      <div id="copy-wrap" style="display:none">
-        <button class="copy-btn" onclick="copyKey()">COPY KEY</button>
-        <p class="note" id="key-note">This key expires in 24 hours.</p>
-      </div>
-    </div>
-
-    <a class="discord-card" href="https://discord.gg/bxu2WMjNjN" target="_blank">
-      <div class="discord-icon-wrap">
-        <div class="discord-icon">
-          <svg viewBox="0 0 127.14 96.36" xmlns="http://www.w3.org/2000/svg">
-            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
-          </svg>
-        </div>
-      </div>
-      <div class="discord-text">
-        <div class="discord-label">Community</div>
-        <div class="discord-title">Join the Discord</div>
-        <div class="discord-sub">Updates, support &amp; releases</div>
-      </div>
-      <div class="discord-arrow">→</div>
-    </a>
-
-  </div>
-
-  <script>
+<script>
     const WORKER_URL = "https://keyverify.ivyckdemal.workers.dev";
     let claimed = false;
 
     async function getKey() {
+      // Prevent double firing
       if (claimed) return;
+      if (sessionStorage.getItem("claiming")) return;
       claimed = true;
+      sessionStorage.setItem("claiming", "1");
 
       const params = new URLSearchParams(window.location.search);
       const token = params.get("token");
 
-      // Immediately strip token from URL and browser history
+      // Immediately strip token from URL
       window.history.replaceState({}, document.title, window.location.pathname);
 
       if (!token) {
         document.getElementById("status").innerHTML = '<span class="error">⚠ You must complete the checkpoint first!</span>';
         claimed = false;
+        sessionStorage.removeItem("claiming");
         return;
       }
 
@@ -300,8 +34,13 @@
         if (data.error) {
           document.getElementById("status").innerHTML = `<span class="error">⚠ ${data.error}</span>`;
           claimed = false;
+          sessionStorage.removeItem("claiming");
           return;
         }
+
+        // Store key in sessionStorage so it survives a reload
+        sessionStorage.setItem("lastKey", data.key);
+        sessionStorage.removeItem("claiming");
 
         document.getElementById("status").style.display = "none";
         document.getElementById("key-display").innerText = data.key;
@@ -315,7 +54,19 @@
       } catch (e) {
         document.getElementById("status").innerHTML = '<span class="error">⚠ Something went wrong. Try again.</span>';
         claimed = false;
+        sessionStorage.removeItem("claiming");
       }
+    }
+
+    // If we already got a key this session, just show it
+    const savedKey = sessionStorage.getItem("lastKey");
+    if (savedKey) {
+      document.getElementById("status").style.display = "none";
+      document.getElementById("key-display").innerText = savedKey;
+      document.getElementById("key-box").style.display = "block";
+      document.getElementById("copy-wrap").style.display = "block";
+    } else {
+      getKey();
     }
 
     function copyKey() {
@@ -323,8 +74,4 @@
       document.querySelector(".copy-btn").innerText = "✓ COPIED!";
       setTimeout(() => document.querySelector(".copy-btn").innerText = "COPY KEY", 2000);
     }
-
-    getKey();
-  </script>
-</body>
-</html>
+</script>
