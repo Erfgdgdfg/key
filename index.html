@@ -270,15 +270,19 @@
 
 <script>
     const WORKER_URL = "https://keyverify.ivyckdemal.workers.dev";
-    let claimed = false;
+
+    // If we already got a key this session, show it immediately
+    const savedKey = sessionStorage.getItem("lastKey");
+    if (savedKey) {
+      document.getElementById("status").style.display = "none";
+      document.getElementById("key-display").innerText = savedKey;
+      document.getElementById("key-box").style.display = "block";
+      document.getElementById("copy-wrap").style.display = "block";
+    } else {
+      getKey();
+    }
 
     async function getKey() {
-      // Prevent double firing
-      if (claimed) return;
-      if (sessionStorage.getItem("claiming")) return;
-      claimed = true;
-      sessionStorage.setItem("claiming", "1");
-
       const params = new URLSearchParams(window.location.search);
       const token = params.get("token");
 
@@ -287,8 +291,6 @@
 
       if (!token) {
         document.getElementById("status").innerHTML = '<span class="error">⚠ You must complete the checkpoint first!</span>';
-        claimed = false;
-        sessionStorage.removeItem("claiming");
         return;
       }
 
@@ -303,15 +305,10 @@
 
         if (data.error) {
           document.getElementById("status").innerHTML = `<span class="error">⚠ ${data.error}</span>`;
-          claimed = false;
-          sessionStorage.removeItem("claiming");
           return;
         }
 
-        // Store key in sessionStorage so it survives a reload
         sessionStorage.setItem("lastKey", data.key);
-        sessionStorage.removeItem("claiming");
-
         document.getElementById("status").style.display = "none";
         document.getElementById("key-display").innerText = data.key;
         document.getElementById("key-box").style.display = "block";
@@ -323,20 +320,7 @@
 
       } catch (e) {
         document.getElementById("status").innerHTML = '<span class="error">⚠ Something went wrong. Try again.</span>';
-        claimed = false;
-        sessionStorage.removeItem("claiming");
       }
-    }
-
-    // If we already got a key this session, just show it
-    const savedKey = sessionStorage.getItem("lastKey");
-    if (savedKey) {
-      document.getElementById("status").style.display = "none";
-      document.getElementById("key-display").innerText = savedKey;
-      document.getElementById("key-box").style.display = "block";
-      document.getElementById("copy-wrap").style.display = "block";
-    } else {
-      getKey();
     }
 
     function copyKey() {
