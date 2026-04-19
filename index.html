@@ -271,16 +271,19 @@
   <script>
     const WORKER_URL = "https://keyverify.ivyckdemal.workers.dev";
 
-    async function getKey() {
-      const savedKey = sessionStorage.getItem("lastKey");
-      if (savedKey) {
-        document.getElementById("status").style.display = "none";
-        document.getElementById("key-display").innerText = savedKey;
-        document.getElementById("key-box").style.display = "block";
-        document.getElementById("copy-wrap").style.display = "block";
-        return;
-      }
+    // Clear any bad cached values
+    const savedKey = sessionStorage.getItem("lastKey");
+    if (savedKey && savedKey !== "undefined") {
+      document.getElementById("status").style.display = "none";
+      document.getElementById("key-display").innerText = savedKey;
+      document.getElementById("key-box").style.display = "block";
+      document.getElementById("copy-wrap").style.display = "block";
+    } else {
+      sessionStorage.removeItem("lastKey");
+      getKey();
+    }
 
+    async function getKey() {
       try {
         const res = await fetch(WORKER_URL, {
           method: "POST",
@@ -315,8 +318,6 @@
       document.querySelector(".copy-btn").innerText = "✓ COPIED!";
       setTimeout(() => document.querySelector(".copy-btn").innerText = "COPY KEY", 2000);
     }
-
-    getKey();
-  </script>
+</script>
 </body>
 </html>
